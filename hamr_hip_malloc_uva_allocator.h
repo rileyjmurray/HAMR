@@ -65,11 +65,11 @@ void
 hip_malloc_uva_deleter<T, typename std::enable_if<!std::is_arithmetic<T>::value>::type>
     ::operator()(T *ptr)
 {
-#if !defined(HAMR_CUDA_OBJECTS)
+#if !defined(HAMR_ENABLE_OBJECTS)
     (void) ptr;
      std::cerr << "[" << __FILE__ << ":" << __LINE__ << "] ERROR:"
          " hip_malloc_uva_deleter dealllocate objects failed."
-        " HAMR_CUDA_OBJECTS is not enabled" << std::endl;
+        " HAMR_ENABLE_OBJECTS is not enabled" << std::endl;
      abort();
 #else
     assert(ptr == m_ptr);
@@ -218,11 +218,11 @@ std::shared_ptr<T>
 hip_malloc_uva_allocator<T, typename std::enable_if<!std::is_arithmetic<T>::value>::type>
     ::allocate(size_t n_elem)
 {
-#if !defined(HAMR_CUDA_OBJECTS)
+#if !defined(HAMR_ENABLE_OBJECTS)
     (void) n_elem;
      std::cerr << "[" << __FILE__ << ":" << __LINE__ << "] ERROR:"
          " hip_malloc_uva_allocator allocate objects failed."
-        " HAMR_CUDA_OBJECTS is not enabled" << std::endl;
+        " HAMR_ENABLE_OBJECTS is not enabled" << std::endl;
      abort();
      return nullptr;
 #else
@@ -284,12 +284,12 @@ std::shared_ptr<T>
 hip_malloc_uva_allocator<T, typename std::enable_if<!std::is_arithmetic<T>::value>::type>
     ::allocate(size_t n_elem, const T &val)
 {
-#if !defined(HAMR_CUDA_OBJECTS)
+#if !defined(HAMR_ENABLE_OBJECTS)
     (void) n_elem;
     (void) val;
      std::cerr << "[" << __FILE__ << ":" << __LINE__ << "] ERROR:"
          " hip_malloc_uva_allocator allocate objects failed."
-        " HAMR_CUDA_OBJECTS is not enabled" << std::endl;
+        " HAMR_ENABLE_OBJECTS is not enabled" << std::endl;
      abort();
      return nullptr;
 #else
@@ -353,13 +353,13 @@ std::shared_ptr<T>
 hip_malloc_uva_allocator<T, typename std::enable_if<!std::is_arithmetic<T>::value>::type>
     ::allocate(size_t n_elem, const U *vals, bool hipVals)
 {
-#if !defined(HAMR_CUDA_OBJECTS)
+#if !defined(HAMR_ENABLE_OBJECTS)
     (void) n_elem;
     (void) vals;
     (void) hipVals;
      std::cerr << "[" << __FILE__ << ":" << __LINE__ << "] ERROR:"
          " hip_malloc_uva_allocator allocate objects failed."
-        " HAMR_CUDA_OBJECTS is not enabled" << std::endl;
+        " HAMR_ENABLE_OBJECTS is not enabled" << std::endl;
      abort();
      return nullptr;
 #else
@@ -439,7 +439,7 @@ hip_malloc_uva_allocator<T, typename std::enable_if<!std::is_arithmetic<T>::valu
     {
         std::cerr << "hip_malloc_uva_allocator allocating array of " << n_elem
             << " objects of type " << typeid(T).name() << sizeof(T)
-            << " at " << ptr  << " initialized from " << (hipVals ? "CUDA" : "CPU")
+            << " at " << ptr  << " initialized from " << (hipVals ? "CUDA" : "host")
             << " array of objects of type " << typeid(U).name() << sizeof(U)
             << " at " << vals << std::endl;
     }
@@ -657,7 +657,7 @@ hip_malloc_uva_allocator<T, typename std::enable_if<std::is_arithmetic<T>::value
     {
         std::cerr << "hip_malloc_uva_allocator allocating array of " << n_elem
             << " objects of type " << typeid(T).name() << sizeof(T)
-            << " at " << ptr  << " initialized from " << (hipVals ? "CUDA" : "CPU")
+            << " at " << ptr  << " initialized from " << (hipVals ? "CUDA" : "host")
             << " array " << vals << " objects of type " << typeid(U).name() << sizeof(T)
             << std::endl;
     }

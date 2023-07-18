@@ -1,7 +1,6 @@
 #include "hamr_buffer.h"
 #include "hamr_buffer_util.h"
 #include "hamr_cuda_launch.h"
-#include "hamr_buffer_pointer.h"
 
 #include <cuda.h>
 #include <cuda_runtime.h>
@@ -205,7 +204,7 @@ int compare_int(const buffer<T> &ain, int val)
     buffer<int> ai(ain.get_allocator(), n_vals);
     ain.get(ai);
 
-    auto [spai, pai] = hamr::get_cpu_accessible(ai);
+    auto [spai, pai] = hamr::get_host_accessible(ai);
 
     if (n_vals < 33)
     {
@@ -245,12 +244,12 @@ int main(int, char **)
     buffer<double> ao4 = multiply_scalar_cuda(ao3, 1000.0);                           // = 4000 (CUDA)
     ao3.free();
 
-    buffer<float>  ao5(allocator::malloc, n_vals, 3.0f);                              // = 1 (CPU)
+    buffer<float>  ao5(allocator::malloc, n_vals, 3.0f);                              // = 1 (host)
     buffer<float>  ao6 = multiply_scalar_cuda(ao5, 100.0f);                           // = 300 (CUDA)
     ao5.free();
 
-    buffer<float> ao7(allocator::malloc, n_vals);                                     // = uninit (CPU)
-    ao7.set(ao6);                                                                     // = 300 (CPU)
+    buffer<float> ao7(allocator::malloc, n_vals);                                     // = uninit (host)
+    ao7.set(ao6);                                                                     // = 300 (host)
     ao6.free();
 
     buffer<double> ao8 = add_cuda(ao4, ao7);                                          // = 4300 (CUDA)

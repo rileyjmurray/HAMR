@@ -49,7 +49,7 @@
         size_t n_elem = self->size();
         if (n_elem)
         {
-            auto [spb, pb] = get_cpu_accessible(*self);
+            auto [spb, pb] = get_host_accessible(*self);
 
             oss << pb[0];
 
@@ -65,16 +65,16 @@
         return PyUnicode_FromString(oss.str().c_str());
     }
 
-    /** return an object that can be used on the CPU */
-    hamr::buffer_handle<T> get_cpu_accessible()
+    /** return an object that can be used on the host */
+    hamr::buffer_handle<T> get_host_accessible()
     {
         hamr::gil_state gil;
 
         std::shared_ptr<T> ptr
-            (std::const_pointer_cast<T>(self->get_cpu_accessible()));
+            (std::const_pointer_cast<T>(self->get_host_accessible()));
 
         hamr::buffer_handle<T> h(ptr, self->size(), 0, 1,
-            self->cpu_accessible() && self->cuda_accessible(),
+            self->host_accessible() && self->cuda_accessible(),
             self->get_stream().get_stream());
 
         return h;
@@ -89,7 +89,7 @@
             (std::const_pointer_cast<T>(self->get_cuda_accessible()));
 
         hamr::buffer_handle<T> h(ptr, self->size(), 0,
-            self->cpu_accessible() && self->cuda_accessible(), 1,
+            self->host_accessible() && self->cuda_accessible(), 1,
             self->get_stream().get_stream());
 
         return h;
@@ -100,6 +100,7 @@
 %template(buffer_float) hamr::buffer<float>;
 %template(buffer_double) hamr::buffer<double>;
 %template(buffer_char) hamr::buffer<char>;
+%template(buffer_signed_char) hamr::buffer<signed char>;
 %template(buffer_short) hamr::buffer<short>;
 %template(buffer_int) hamr::buffer<int>;
 %template(buffer_long) hamr::buffer<long>;
@@ -122,7 +123,7 @@ def buffer(obj, **kwargs):
     using it. By default the buffer will use the same stream as the cupy
     object. This can be overridden by passing a 'stream' kwargs. Optionally a
     transfer mode may be specified as well via the 'sync' kwargs. The default
-    transfer mode is sync_cpu.
+    transfer mode is sync_host.
     """
 
     aint = None
@@ -152,7 +153,7 @@ def buffer(obj, **kwargs):
     if 'sync' in kwargs:
         sync = kwargs['sync']
     else:
-        sync = buffer_transfer_sync_cpu
+        sync = buffer_transfer_sync_host
 
     shape = aint['shape']
     n_elem = 1

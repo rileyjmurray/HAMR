@@ -29,10 +29,10 @@ enum class buffer_allocator
 HAMR_EXPORT
 const char *get_allocator_name(buffer_allocator alloc);
 
-/// @returns true if the allocator creates CPU accessible memory
+/// @returns true if the allocator creates host accessible memory
 inline
 HAMR_EXPORT
-int cpu_accessible(buffer_allocator alloc)
+int host_accessible(buffer_allocator alloc)
 {
     return (alloc == buffer_allocator::cpp) ||
         (alloc == buffer_allocator::malloc) ||
@@ -101,20 +101,32 @@ void assert_valid_allocator(buffer_allocator alloc)
         );
 }
 
-/// get the allocator type most suitable for the current build configuration
+/// get the allocator type most suitable for the current build configuration.
 inline HAMR_EXPORT buffer_allocator get_device_allocator()
 {
-    buffer_allocator alloc = buffer_allocator::malloc;
 #if defined(HAMR_ENABLE_CUDA)
-    alloc = buffer_allocator::cuda;
+    return buffer_allocator::cuda_async;
+#elif defined(HAMR_ENABLE_HIP)
+    return buffer_allocator::hip;
+#elif defined(HAMR_ENABLE_OPENMP)
+    return buffer_allocator::openmp;
+#else
+    return buffer_allocator::malloc;
 #endif
-#if defined(HAMR_ENABLE_HIP)
-    alloc = buffer_allocator::hip;
+}
+
+/// get the allocator type most suitable for the current build configuration.
+inline HAMR_EXPORT buffer_allocator get_host_allocator()
+{
+#if defined(HAMR_ENABLE_CUDA)
+    return buffer_allocator::cuda_host;
+#elif defined(HAMR_ENABLE_HIP)
+    return buffer_allocator::malloc;
+#elif defined(HAMR_ENABLE_OPENMP)
+    return buffer_allocator::malloc;
+#else
+    return buffer_allocator::malloc;
 #endif
-#if defined(HAMR_ENABLE_OPENMP)
-    alloc = buffer_allocator::openmp;
-#endif
-    return alloc;
 }
 
 }
